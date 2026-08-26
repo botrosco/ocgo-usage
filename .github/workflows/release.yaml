@@ -1,0 +1,41 @@
+# GitHub Actions twin of .forgejo/workflows/build.yaml — builds the three
+# platform binaries when a version tag (v*) is pushed and attaches them to a
+# (created/updated) release for that tag. GitHub auto-marks the newest release
+# as "Latest", which is the analogue of the forgejo pipeline's
+# "Publish to latest" step (a pinned `latest` tag would churn; GitHub handles
+# it natively). Tag pushes drive the run — no need to publish a release first.
+name: Build
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # Setup
+    - uses: actions/checkout@v7
+    - uses: actions/setup-go@v7
+      with:
+        go-version: "1.26"
+
+    # Build
+    - name: Build
+      run: |
+        mkdir bin
+        TAG="${{ github.ref_name }}"
+        GOOS=linux GOARCH=amd64 go build -o bin/ocgo-usage_${TAG}_linux .
+        GOOS=windows GOARCH=amd64 go build -o bin/ocgo-usage_${TAG}_win.exe .
+        GOOS=darwin GOARCH=arm64 go build -o bin/ocgo-usage_${TAG}_mac .
+        ls bin
+
+    # Publish
+    - name: Publish to release
+      uses: softprops/action-gh-release@v3
+      with:
+        files: bin/*

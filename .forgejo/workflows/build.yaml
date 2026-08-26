@@ -1,0 +1,46 @@
+name: Build
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: default
+    steps:
+    # Setup
+    - uses: actions/checkout@v6
+    - uses: actions/setup-go@v6
+      with:
+        go-version: "1.26"
+
+    # Build
+    - name: Build
+      run: |
+        mkdir bin
+        TAG="${{ forge.ref_name }}"
+        GOOS=linux GOARCH=amd64 go build -o bin/ocgo-usage_${TAG}_linux .
+        GOOS=windows GOARCH=amd64 go build -o bin/ocgo-usage_${TAG}_win.exe .
+        GOOS=darwin GOARCH=arm64 go build -o bin/ocgo-usage_${TAG}_mac .
+        ls bin
+
+    # Publish
+    - name: Publish to version
+      uses: actions/forgejo-release@v2
+      with:
+        direction: upload
+        url: http://forgejo
+        repo: rosco/ocgo-usage
+        token: ${{ secrets.app_token }}
+        override: true
+        release-dir: bin
+    - name: Publish to latest
+      uses: actions/forgejo-release@v2
+      with:
+        direction: upload
+        url: http://forgejo
+        repo: rosco/ocgo-usage
+        token: ${{ secrets.app_token }}
+        override: true
+        release-dir: bin
+        tag: latest
+        hide-archive-link: true
