@@ -98,13 +98,13 @@ background timers), so busy turns can't hammer the endpoint. One-shot
 notifications fire when the highest window crosses the alert threshold or any
 window rate-limits.
 
-Install (needs the binary on PATH, see above):
+Install (needs the binary on PATH, see above). On this machine the global
+copy is symlinked from the `/opt/git/ai` repo (see `scripts/link.sh` there):
 
 ```sh
-mkdir -p ~/.pi/agent/extensions
-ln -s /opt/git/pi-ocgo-usage-cli/extensions/ocgo-usage.ts ~/.pi/agent/extensions/
+ln -s /opt/git/ai/extensions/ocgo-usage.ts ~/.pi/agent/extensions/
 # or reference it from ~/.pi/agent/settings.json:
-#   "extensions": ["/opt/git/pi-ocgo-usage-cli/extensions/ocgo-usage.ts"]
+#   "extensions": ["/opt/git/ai/extensions/ocgo-usage.ts"]
 ```
 
 Reload with `/reload`. Flags:
