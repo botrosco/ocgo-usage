@@ -7,9 +7,10 @@ subscription.
 
 ## Example output
 
-Default one-shot report (`ocgo-usage`):
+pi footer status extension — the default one-line render of the three windows
+(see [Footer status extension](#footer-status-extension-extensionsocgo-usagets)):
 
-![Default one-line usage summary](docs/usage-default.png)
+![pi footer extension one-line usage](docs/extension-footer.png)
 
 Full multi-line report (`ocgo-usage --full`):
 
