@@ -19,12 +19,32 @@ func renderJSON(w io.Writer, u *Usage) error {
 	return err
 }
 
-// renderOneLine writes a minimal single-line summary of the three windows,
-// e.g. "rolling 59% | weekly 58% | monthly 32%" — plain text, script-friendly.
+// renderOneLine writes the default minimal single-line summary of the three
+// windows, e.g. "Rolling: 59% | Weekly: 58% | Monthly: 32%" — plain text,
+// script-friendly, with each percent colour-coded on a terminal:
+// green < 75%, orange 75–89%, red ≥ 90%.
 func renderOneLine(w io.Writer, u *Usage) {
 	ws := u.Usage
-	fmt.Fprintf(w, "rolling %d%% | weekly %d%% | monthly %d%%\n",
-		ws.Rolling.Percent, ws.Weekly.Percent, ws.Monthly.Percent)
+	fmt.Fprintf(w, "Rolling: %s | Weekly: %s | Monthly: %s\n",
+		pctCell(ws.Rolling), pctCell(ws.Weekly), pctCell(ws.Monthly))
+}
+
+// pctColor returns the ANSI colour for a usage percent: green < 75%,
+// orange 75–89%, red ≥ 90%.
+func pctColor(pct int) string {
+	switch {
+	case pct >= 90:
+		return "31"
+	case pct >= 75:
+		return "33"
+	default:
+		return "32"
+	}
+}
+
+// pctCell renders a window's usage percent, coloured when on a terminal.
+func pctCell(w Window) string {
+	return colorize(pctColor(w.Percent), fmt.Sprintf("%d%%", w.Percent))
 }
 
 // renderHuman writes the human-readable report. src carries key + origin.

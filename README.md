@@ -39,14 +39,14 @@ Override the pi auth file location with `--auth-file`.
 ## Usage
 
 ```sh
-# one-shot report
+# one-shot report (default: one-line summary, colour-coded percents on a TTY)
 ocgo-usage
+
+# full multi-line report (endpoint, key, resets, alerts)
+ocgo-usage --full
 
 # machine-readable
 ocgo-usage --json
-
-# minimal one-line summary (script-friendly)
-ocgo-usage --one-line
 
 # poll every 60s
 ocgo-usage --watch --interval 60

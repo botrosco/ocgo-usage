@@ -38,7 +38,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		interval = fs.Int("interval", defaultInterval, "seconds between polls in --watch mode")
 		limit    = fs.Int("limit", defaultLimit, "exit 1 (one-shot) when any window's usage % reaches this; 0 disables")
 		jsonOut  = fs.Bool("json", false, "print the raw JSON payload (one object per poll in --watch)")
-		oneLine  = fs.Bool("one-line", false, "print a minimal one-line summary: rolling x% | weekly x% | monthly x%")
+		full     = fs.Bool("full", false, "print the full multi-line report (default is a one-line summary)")
 		quiet    = fs.Bool("quiet", false, "suppress human output (exit code still reflects state)")
 		version  = fs.Bool("version", false, "print version and exit")
 	)
@@ -88,14 +88,14 @@ Flags:
 	defer stop()
 
 	if !*watch {
-		return pollOnce(ctx, stdout, stderr, endpoint, src, *limit, *jsonOut, *oneLine, *quiet)
+		return pollOnce(ctx, stdout, stderr, endpoint, src, *limit, *jsonOut, *full, *quiet)
 	}
 
 	// Watch mode: poll every interval. Ctrl-C exits 0.
 	ticker := time.NewTicker(time.Duration(*interval) * time.Second)
 	defer ticker.Stop()
 	for {
-		code := pollOnceWatch(ctx, stdout, stderr, endpoint, src, *limit, *jsonOut, *oneLine, *quiet)
+		code := pollOnceWatch(ctx, stdout, stderr, endpoint, src, *limit, *jsonOut, *full, *quiet)
 		if code == exitError {
 			return exitError
 		}
@@ -108,7 +108,7 @@ Flags:
 }
 
 // pollOnce performs a single fetch and report; returns the process exit code.
-func pollOnce(ctx context.Context, stdout, stderr io.Writer, endpoint string, src keySource, limit int, jsonOut, oneLine, quiet bool) int {
+func pollOnce(ctx context.Context, stdout, stderr io.Writer, endpoint string, src keySource, limit int, jsonOut, full, quiet bool) int {
 	u, err := fetchUsage(ctx, endpoint, src.key)
 	if err != nil {
 		fmt.Fprintf(stderr, "ocgo-usage: %v\n", err)
@@ -119,10 +119,10 @@ func pollOnce(ctx context.Context, stdout, stderr io.Writer, endpoint string, sr
 			fmt.Fprintf(stderr, "ocgo-usage: %v\n", err)
 			return exitError
 		}
-	} else if oneLine {
-		renderOneLine(stdout, u)
-	} else if !quiet {
+	} else if full {
 		renderHuman(stdout, u, endpoint, src, time.Now(), limit)
+	} else if !quiet {
+		renderOneLine(stdout, u)
 	}
 	if limit > 0 && (u.RateLimited() != nil || u.MaxPercent() >= limit) {
 		return exitAlert
@@ -132,11 +132,11 @@ func pollOnce(ctx context.Context, stdout, stderr io.Writer, endpoint string, sr
 
 // pollOnceWatch is like pollOnce but clears the screen first (when a TTY)
 // and prints its own fetch-time header per poll.
-func pollOnceWatch(ctx context.Context, stdout, stderr io.Writer, endpoint string, src keySource, limit int, jsonOut, oneLine, quiet bool) int {
+func pollOnceWatch(ctx context.Context, stdout, stderr io.Writer, endpoint string, src keySource, limit int, jsonOut, full, quiet bool) int {
 	if stdoutTTY {
 		fmt.Fprint(stdout, "\x1b[H\x1b[2J")
 	}
-	return pollOnce(ctx, stdout, stderr, endpoint, src, limit, jsonOut, oneLine, quiet)
+	return pollOnce(ctx, stdout, stderr, endpoint, src, limit, jsonOut, full, quiet)
 }
 
 // stdoutTTY reports whether stdout is attached to a terminal.

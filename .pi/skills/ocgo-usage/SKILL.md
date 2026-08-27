@@ -40,12 +40,12 @@ go build -o ~/.local/bin/ocgo-usage .   # or: cp ocgo-usage ~/.local/bin/
 ### Flags
 
 ```bash
-ocgo-usage                  # one-shot report
+ocgo-usage                  # one-shot report (Rolling: x% | Weekly: x% | Monthly: x%)
+ocgo-usage --full           # full multi-line report (resets, alerts, key origin)
 ocgo-usage --watch          # poll continuously (Ctrl-C to stop)
 ocgo-usage --interval 60    # seconds between polls (default 30)
 ocgo-usage --limit 80       # exit 1 when any window's usage % >= 80
 ocgo-usage --json           # raw JSON payload (machine-readable)
-ocgo-usage --one-line       # rolling 59% | weekly 58% | monthly 32%
 ocgo-usage --quiet          # no output, exit code only (cron/dashboards)
 ocgo-usage --api-key sk-…   # override key (usually unnecessary)
 ocgo-usage --url <base>     # non-default console (enterprise)
@@ -55,6 +55,9 @@ Exit codes: `0` ok · `1` at/over `--limit` or rate-limited · `2` error
 (no key, 401 bad key, 403 no Go subscription, network, bad response).
 
 ## Interpreting results
+
+- default one-line output colour-codes each percent on a TTY: green < 75%,
+  orange 75–89%, red ≥ 90% (plain text when piped)
 
 | Window | Meaning | Resets |
 |--------|---------|--------|

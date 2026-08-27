@@ -85,8 +85,28 @@ func TestRenderOneLine(t *testing.T) {
 	}}
 	var buf bytes.Buffer
 	renderOneLine(&buf, u)
-	if want := "rolling 59% | weekly 58% | monthly 32%\n"; buf.String() != want {
+	if want := "Rolling: 59% | Weekly: 58% | Monthly: 32%\n"; buf.String() != want {
 		t.Errorf("renderOneLine = %q, want %q", buf.String(), want)
+	}
+}
+
+func TestPctColor(t *testing.T) {
+	cases := []struct {
+		pct  int
+		want string
+	}{
+		{0, "32"}, // green < 75%
+		{59, "32"},
+		{74, "32"},
+		{75, "33"}, // orange 75–89%
+		{89, "33"},
+		{90, "31"}, // red ≥ 90%
+		{100, "31"},
+	}
+	for _, c := range cases {
+		if got := pctColor(c.pct); got != c.want {
+			t.Errorf("pctColor(%d) = %q, want %q", c.pct, got, c.want)
+		}
 	}
 }
 
