@@ -19,6 +19,13 @@ API key resolution (automatic, do not ask the user for a key):
 `~/.local/share/opencode/auth.json`. Never print a raw key — the CLI displays it
 masked (`sk-…WzDYm`).
 
+## In pi (footer extension)
+
+The repo ships `extensions/ocgo-usage.ts` (see README "pi integration"): after
+key pi actions it polls the same endpoint and shows `Go R… W… M…` in the pi
+footer (throttled to one poll/60s). If it's not shown in your footer, install
+it per the README and `/reload`. For an immediate one-shot, use the CLI below.
+
 ## Running
 
 The CLI is a single binary on PATH — invoke it directly, or via the wrapper

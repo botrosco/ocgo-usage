@@ -1,0 +1,14 @@
+{
+  "name": "pi-ocgo-usage",
+  "version": "0.1.0",
+  "description": "OpenCode Go usage CLI, pi footer-status extension, and skill (poll /zen/go/v1/usage)",
+  "keywords": ["pi-package", "opencode", "usage", "zen"],
+  "license": "MIT",
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": ["./extensions"],
+    "skills": ["./.pi/skills/ocgo-usage"]
+  }
+}

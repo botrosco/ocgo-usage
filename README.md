@@ -16,15 +16,16 @@ The console answers with the same data as the zen workspace dashboard:
 
 ```json
 {
-  "useBalance": false,
-  "rollingUsage": { "status": "ok", "resetInSec": 12400, "usagePercent": 24 },
-  "weeklyUsage":  { "status": "ok", "resetInSec": 345000, "usagePercent": 41 },
-  "monthlyUsage": { "status": "ok", "resetInSec": 1040000, "usagePercent": 12 }
+  "usage": {
+    "rolling": { "status": "ok", "percent": 24, "resetsAt": "..." },
+    "weekly":  { "status": "ok", "percent": 41, "resetsAt": "..." },
+    "monthly": { "status": "ok", "percent": 12, "resetsAt": "..." }
+  }
 }
 ```
 
-`status` is `"ok"` or `"rate-limited"`; `usagePercent` is 0–100 of the window
-limit; `resetInSec` counts down to the window reset.
+`status` is `"ok"` or `"rate-limited"`; `percent` is 0–100 of the window
+limit; `resetsAt` is an RFC3339 timestamp of the window reset.
 
 ## API key resolution (in order)
 
@@ -74,4 +75,46 @@ Rebuild from the repo and re-copy to upgrade.
 ```sh
 go build -o ocgo-usage . && cp ocgo-usage ~/.local/bin/
 go test ./...
+```
+
+## pi integration
+
+The repo is a [pi package](https://github.com/earendil-works/pi) — it ships a
+extension that shows Go usage in the pi footer plus the `ocgo-usage` skill.
+
+### Footer status extension (`extensions/ocgo-usage.ts`)
+
+After key pi actions — session start, completed turns, settled agent runs,
+model changes, thinking-level changes — the extension polls the usage endpoint
+via the `ocgo-usage` CLI and renders the three windows in the footer:
+
+```
+Go R59% W58% M32%
+```
+
+Colour-coded like the CLI (green < 75%, orange 75–89%, red ≥ 90%), `⚠` marks a
+rate-limited window. Polls are throttled to one per 60s (event-driven, no
+background timers), so busy turns can't hammer the endpoint. One-shot
+notifications fire when the highest window crosses the alert threshold or any
+window rate-limits.
+
+Install (needs the binary on PATH, see above):
+
+```sh
+mkdir -p ~/.pi/agent/extensions
+ln -s /opt/git/pi-ocgo-usage-cli/extensions/ocgo-usage.ts ~/.pi/agent/extensions/
+# or reference it from ~/.pi/agent/settings.json:
+#   "extensions": ["/opt/git/pi-ocgo-usage-cli/extensions/ocgo-usage.ts"]
+```
+
+Reload with `/reload`. Flags:
+
+- `--ocgo-usage-interval <seconds>` — minimum seconds between polls (default 60)
+- `--ocgo-usage-alert <percent>` — notify when the highest window crosses this
+  percentage (default 90)
+
+Alternatively install the whole repo as a package to get extension + skill:
+
+```sh
+pi install /opt/git/pi-ocgo-usage-cli
 ```
