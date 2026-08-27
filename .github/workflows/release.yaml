@@ -1,13 +1,15 @@
 # GitHub Actions twin of .forgejo/workflows/build.yaml — builds the three
-# platform binaries when a release is published and attaches them to the
-# release. GitHub auto-marks the newest release as "Latest", which is the
-# analogue of the forgejo pipeline's "Publish to latest" step (a pinned
-# `latest` tag would churn; GitHub handles it natively).
+# platform binaries when a version tag (v*) is pushed and attaches them to a
+# (created/updated) release for that tag. GitHub auto-marks the newest release
+# as "Latest", which is the analogue of the forgejo pipeline's
+# "Publish to latest" step (a pinned `latest` tag would churn; GitHub handles
+# it natively). Tag pushes drive the run — no need to publish a release first.
 name: Build
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*"
 
 jobs:
   build:
