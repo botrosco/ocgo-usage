@@ -1,4 +1,5 @@
 /**
+ * SPDX-License-Identifier: GPL-3.0-only
  * ocgo-usage – OpenCode Go usage in the pi footer.
  *
  * Polls the OpenCode Go usage endpoint (via the `ocgo-usage` CLI, see

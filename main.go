@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 package main
 
 import (
@@ -148,4 +150,4 @@ var stdoutTTY = func() bool {
 	return fi.Mode()&os.ModeCharDevice != 0
 }()
 
-var versionString = "0.1.0 (pi-ocgo-usage-cli)"
+var versionString = "0.1.0 (ocgo-usage)"

@@ -33,16 +33,17 @@ script (identical):
 
 ```bash
 ocgo-usage [flags]
-bash /opt/git/pi-ocgo-usage-cli/.pi/skills/ocgo-usage/scripts/run.sh [flags]
+bash scripts/run.sh [flags]
 ```
 
 ### Installing / upgrading
 
+From a checkout of this repo:
+
 ```bash
-cd /opt/git/pi-ocgo-usage-cli
 go build -o ~/.local/bin/ocgo-usage .   # or: cp ocgo-usage ~/.local/bin/
 ```
-(Go via PATH, or the devbox toolchain `~/devbox/kubegen/.devbox/nix/profile/default/bin/go`.)
+(Needs any Go ≥ 1.24 toolchain on PATH.)
 
 ### Flags
 

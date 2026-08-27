@@ -77,6 +77,10 @@ go build -o ocgo-usage . && cp ocgo-usage ~/.local/bin/
 go test ./...
 ```
 
+## License
+
+[GPL-3.0](LICENSE).
+
 ## pi integration
 
 The repo is a [pi package](https://github.com/earendil-works/pi) — it ships a
@@ -98,13 +102,14 @@ background timers), so busy turns can't hammer the endpoint. One-shot
 notifications fire when the highest window crosses the alert threshold or any
 window rate-limits.
 
-Install (needs the binary on PATH, see above). On this machine the global
-copy is symlinked from the `/opt/git/ai` repo (see `scripts/link.sh` there):
+Install (needs the binary on PATH, see above). Link or copy the extension
+into a pi extension dir, then `/reload`:
 
 ```sh
-ln -s /opt/git/ai/extensions/ocgo-usage.ts ~/.pi/agent/extensions/
+mkdir -p ~/.pi/agent/extensions
+ln -s "$(pwd)/extensions/ocgo-usage.ts" ~/.pi/agent/extensions/
 # or reference it from ~/.pi/agent/settings.json:
-#   "extensions": ["/opt/git/ai/extensions/ocgo-usage.ts"]
+#   "extensions": ["/absolute/path/to/extensions/ocgo-usage.ts"]
 ```
 
 Reload with `/reload`. Flags:
@@ -116,5 +121,5 @@ Reload with `/reload`. Flags:
 Alternatively install the whole repo as a package to get extension + skill:
 
 ```sh
-pi install /opt/git/pi-ocgo-usage-cli
+pi install .    # from a checkout of this repo
 ```
