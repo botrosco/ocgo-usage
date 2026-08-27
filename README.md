@@ -8,7 +8,7 @@ subscription.
 ## Example output
 
 pi footer status extension — the default one-line render of the three windows
-(see [Footer status extension](#footer-status-extension-extensionsocgo-usagets)):
+(see [Footer status extension](#footer-status-extension)):
 
 ![pi footer extension one-line usage](docs/extension-footer.png)
 
@@ -97,10 +97,11 @@ go test ./...
 The repo is a [pi package](https://github.com/earendil-works/pi) — it ships a
 extension that shows Go usage in the pi footer plus the `ocgo-usage` skill.
 
-### Footer status extension (`extensions/ocgo-usage.ts`)
+### Footer status extension
 
 After key pi actions — session start, completed turns, settled agent runs,
-model changes, thinking-level changes — the extension polls the usage endpoint
+model changes, thinking-level changes — the extension (`extensions/ocgo-usage.ts`)
+polls the usage endpoint
 via the `ocgo-usage` CLI and renders the three windows in the footer:
 
 ```
