@@ -29,7 +29,7 @@ jobs:
       with:
         direction: upload
         url: http://forgejo
-        repo: rosco/pi-ocgo-usage-cli
+        repo: rosco/ocgo-usage
         token: ${{ secrets.app_token }}
         override: true
         release-dir: bin
@@ -38,7 +38,7 @@ jobs:
       with:
         direction: upload
         url: http://forgejo
-        repo: rosco/pi-ocgo-usage-cli
+        repo: rosco/ocgo-usage
         token: ${{ secrets.app_token }}
         override: true
         release-dir: bin
