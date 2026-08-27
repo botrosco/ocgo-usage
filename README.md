@@ -5,6 +5,16 @@ A small dependency-free CLI that polls the OpenCode Zen **Go usage** endpoint
 and shows the rolling / weekly / monthly rate-window state for your OpenCode Go
 subscription.
 
+## Example output
+
+Default one-shot report (`ocgo-usage`):
+
+![Default one-line usage summary](docs/usage-default.png)
+
+Full multi-line report (`ocgo-usage --full`):
+
+![Full usage report](docs/usage-full.png)
+
 ## Endpoint
 
 ```
