@@ -21,12 +21,10 @@ spec:
   workspaces:
   - name: source
     persistentVolumeClaim:
-      claimName: release-build-ocgo-usage
-    subPath: src
+      claimName: release-build-ocgo-usage-src
   - name: toolchain
     persistentVolumeClaim:
-      claimName: release-build-ocgo-usage
-    subPath: toolchain
+      claimName: release-build-ocgo-usage-toolchain
   params:
   - name: repo
     value: ocgo-usage
