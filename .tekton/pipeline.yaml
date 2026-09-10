@@ -8,7 +8,8 @@ spec:
   description: Builds and uploads the 3 release binaries (linux/amd64, windows/amd64, darwin/arm64) for rosco/<repo>
     releases. Used by commandcode-usage (runTest=true, buildPkg=.), kubegen (buildPkg=./cmd/kubegen) and ocgo-usage
     (buildPkg=.). Tasks are shared catalog tasks (k8s-manifests components/tekton-catalog) referenced by name;
-    workspaces bind on-host dirs so checkout/build/toolchain persist across runs.
+    each task writes to its own per-run hostPath dir /opt/tekton/builds/<pipelinerun>/<task> (no PVCs/workspaces); finally
+    task cleanup-build-dir removes the run dir at pipeline end.
   params:
   - name: repo
     type: string
@@ -27,11 +28,6 @@ spec:
     type: string
     default: 'false'
     description: true|false
-  workspaces:
-  - name: source
-    description: git checkout + build output (per-repo on-host dir)
-  - name: toolchain
-    description: persistent Go toolchain install (per-repo on-host dir)
   tasks:
   - name: checkout
     taskRef:
@@ -43,18 +39,11 @@ spec:
       value: $(params.tag)
     - name: depth
       value: '1'
-  - name: go-toolchain
-    taskRef:
-      name: go-toolchain
-    params:
-    - name: version
-      value: '1.26'
   - name: go-release-build
     taskRef:
       name: go-release-build
     runAfter:
     - checkout
-    - go-toolchain
     params:
     - name: buildPkg
       value: $(params.buildPkg)
@@ -76,3 +65,7 @@ spec:
       value: $(params.tag)
     - name: binDir
       value: bin
+  finally:
+  - name: cleanup-build-dir
+    taskRef:
+      name: cleanup-build-dir
