@@ -40,7 +40,7 @@ spec:
     - name: depth
       value: '1'
     - name: runName
-      value: $(context.pipelinerun.name)
+      value: $(context.pipelineRun.name)
   - name: go-release-build
     taskRef:
       name: go-release-build
@@ -56,7 +56,7 @@ spec:
     - name: runTest
       value: $(params.runTest)
     - name: runName
-      value: $(context.pipelinerun.name)
+      value: $(context.pipelineRun.name)
   - name: go-release-upload
     taskRef:
       name: go-release-upload
@@ -70,11 +70,11 @@ spec:
     - name: binDir
       value: bin
     - name: runName
-      value: $(context.pipelinerun.name)
+      value: $(context.pipelineRun.name)
   finally:
   - name: cleanup-build-dir
     taskRef:
       name: cleanup-build-dir
     params:
     - name: runName
-      value: $(context.pipelinerun.name)
+      value: $(context.pipelineRun.name)
