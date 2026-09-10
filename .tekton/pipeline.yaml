@@ -7,7 +7,8 @@ metadata:
 spec:
   description: Builds and uploads the 3 release binaries (linux/amd64, windows/amd64, darwin/arm64) for rosco/<repo>
     releases. Used by commandcode-usage (runTest=true, buildPkg=.), kubegen (buildPkg=./cmd/kubegen) and ocgo-usage
-    (buildPkg=.).
+    (buildPkg=.). Tasks are shared catalog tasks (k8s-manifests components/tekton-catalog) referenced by name;
+    workspaces bind on-host dirs so checkout/build/toolchain persist across runs.
   params:
   - name: repo
     type: string
@@ -26,6 +27,11 @@ spec:
     type: string
     default: 'false'
     description: true|false
+  workspaces:
+  - name: source
+    description: git checkout + build output (per-repo on-host dir)
+  - name: toolchain
+    description: persistent Go toolchain install (per-repo on-host dir)
   tasks:
   - name: checkout
     taskRef:
