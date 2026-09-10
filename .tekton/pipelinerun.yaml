@@ -5,7 +5,7 @@ metadata:
   annotations:
     pipelinesascode.tekton.dev/on-event: '[push]'
     pipelinesascode.tekton.dev/on-target-branch: '[refs/tags/*]'
-    pipelinesascode.tekton.dev/task: '[https://git.rossd.net/rosco/k8s-manifests/raw/commit/880e6b3b56a4fd9bdc43ffe5a39cf6cca19f0533/components/tekton-catalog/tasks/checkout/task.yaml, https://git.rossd.net/rosco/k8s-manifests/raw/commit/880e6b3b56a4fd9bdc43ffe5a39cf6cca19f0533/components/tekton-catalog/tasks/go-toolchain/task.yaml, https://git.rossd.net/rosco/k8s-manifests/raw/commit/880e6b3b56a4fd9bdc43ffe5a39cf6cca19f0533/components/tekton-catalog/tasks/go-release-build/task.yaml, https://git.rossd.net/rosco/k8s-manifests/raw/commit/880e6b3b56a4fd9bdc43ffe5a39cf6cca19f0533/components/tekton-catalog/tasks/go-release-upload/task.yaml]'
+    pipelinesascode.tekton.dev/task: '[https://git.rossd.net/rosco/k8s-manifests/raw/commit/6eeca4370631310860b52b74ccea9b85ed00d940/components/tekton-catalog/tasks/checkout/task.yaml, https://git.rossd.net/rosco/k8s-manifests/raw/commit/6eeca4370631310860b52b74ccea9b85ed00d940/components/tekton-catalog/tasks/go-toolchain/task.yaml, https://git.rossd.net/rosco/k8s-manifests/raw/commit/6eeca4370631310860b52b74ccea9b85ed00d940/components/tekton-catalog/tasks/go-release-build/task.yaml, https://git.rossd.net/rosco/k8s-manifests/raw/commit/6eeca4370631310860b52b74ccea9b85ed00d940/components/tekton-catalog/tasks/go-release-upload/task.yaml]'
     # shared catalog tasks live in k8s-manifests (components/tekton-catalog); pinned
     # to sha 3347748 (go version resolution fix). Bump the sha here when catalog changes.
 spec:
