@@ -1,0 +1,79 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: go-release-upload
+  labels:
+    app.kubernetes.io/part-of: tekton-migrate
+spec:
+  description: 'Uploads every file in binDir to releases <tag> and `latest` of rosco/<repo> on Forgejo, overriding
+    existing assets of the same name. Auth: app_token secret (key: token).'
+  params:
+  - name: repo
+    type: string
+    description: short repo name, e.g. commandcode-usage
+  - name: tag
+    type: string
+    description: release tag from the webhook (body.release.tag_name)
+  - name: binDir
+    type: string
+    default: bin
+  - name: apiUrl
+    type: string
+    default: http://forgejo.default
+    description: in-cluster Forgejo service; git.rossd.net resolves the same backend
+  - name: owner
+    type: string
+    default: rosco
+  volumes:
+  - name: app-token
+    secret:
+      secretName: app-token
+      defaultMode: 256
+  - name: source-host
+    hostPath:
+      path: /var/lib/tekton-build/ocgo-usage/source
+      type: DirectoryOrCreate
+  steps:
+  - name: upload
+    image: docker.io/library/debian:bookworm-slim
+    workingDir: /workspace/source
+    env:
+    - name: REPO
+      value: $(params.repo)
+    - name: TAG
+      value: $(params.tag)
+    - name: BIN_DIR
+      value: $(params.binDir)
+    - name: API_URL
+      value: $(params.apiUrl)
+    - name: OWNER
+      value: $(params.owner)
+    volumeMounts:
+    - name: app-token
+      mountPath: /tmp/app-token
+      readOnly: true
+    - name: source-host
+      mountPath: /workspace/source
+    script: "#!/usr/bin/env bash\nset -euo pipefail\nMISSING=\"\"\ncommand -v curl >/dev/null 2>&1 || MISSING=\"\
+      curl ${MISSING}\"\ncommand -v python3 >/dev/null 2>&1 || MISSING=\"python3 ${MISSING}\"\nif [[ -n \"$MISSING\"\
+      \ ]]; then\n  apt-get update -qq && apt-get install -y -qq $MISSING ca-certificates >/dev/null\nfi\nTOKEN=\"\
+      $(cat /tmp/app-token/token)\"\nAPI=\"${API_URL}/api/v1\"\nBASE=\"/repos/${OWNER}/${REPO}/releases\"\nAUTH=(-H\
+      \ \"Authorization: token ${TOKEN}\")\n\nlist_assets() { curl -fsS \"${AUTH[@]}\" \"${API}${BASE}/tags/${1}/assets\"\
+      \ || true; }\n\nensure_release() {\n  local tag=\"$1\"\n  if ! curl -fsS \"${AUTH[@]}\" \"${API}${BASE}/tags/${tag}\"\
+      \ >/dev/null 2>&1; then\n    echo \"creating missing release for tag ${tag}\"\n    curl -fsS \"${AUTH[@]}\"\
+      \ -X POST -H 'Content-Type: application/json' \\\n      -d \"{\\\"tag_name\\\":\\\"${tag}\\\",\\\"name\\\"\
+      :\\\"${tag}\\\",\\\"draft\\\":false,\\\"prerelease\\\":false}\" \\\n      \"${API}${BASE}\" >/dev/null\n \
+      \ fi\n}\n\nupload_release() {\n  local tag=\"$1\" rid asset_list asset_id name\n  ensure_release \"$tag\"\n\
+      \  rid=\"$(curl -fsS \"${AUTH[@]}\" \"${API}${BASE}/tags/${tag}\" | python3 -c 'import json,sys;print(json.load(sys.stdin)[\"\
+      id\"])')\"\n    echo \"release id for ${tag}: ${rid}\"\n    for f in \"${BIN_DIR}\"/*; do\n    [ -f \"$f\"\
+      \ ] || continue\n    name=\"$(basename \"$f\")\"\n    # override: delete existing asset with same name\n \
+      \   asset_list=\"$(curl -fsS \"${AUTH[@]}\" \"${API}${BASE}/${rid}/assets\")\"\n    asset_id=\"$(printf '%s'\
+      \ \"$asset_list\" | python3 -c \"\n    import json, sys\n    for a in json.load(sys.stdin):\n        if a['name']\
+      \ == sys.argv[1]:\n            print(a['id'])\n            break\n    \" -- \"$name\")\"\n    if [[ -n \"\
+      $asset_id\" ]]; then\n      echo \"overriding existing asset ${name} (id ${asset_id})\"\n      curl -fsS \"\
+      ${AUTH[@]}\" -X DELETE \"${API}${BASE}/${rid}/assets/${asset_id}\" >/dev/null\n    fi\n    echo \"uploading\
+      \ ${name} to release ${tag}\"\n    curl -fsS \"${AUTH[@]}\" -X POST -H \"Content-Type: application/octet-stream\"\
+      \ \\\n      --data-binary \"@${f}\" \\\n      \"${API}${BASE}/${rid}/assets?name=${name}\" >/dev/null\n  done\n\
+      }\n\necho \"== uploading to release ${TAG}\"\nupload_release \"$TAG\"\necho \"== uploading to latest\"\nupload_release\
+      \ latest\necho \"uploads complete\"\ncurl -fsS \"${AUTH[@]}\" \"${API}${BASE}/tags/${TAG}/assets\" | python3\
+      \ -m json.tool\ncurl -fsS \"${AUTH[@]}\" \"${API}${BASE}/tags/latest/assets\" | python3 -m json.tool"

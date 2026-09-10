@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: release-build
+  annotations:
+    pipelinesascode.tekton.dev/on-event: '[push]'
+    pipelinesascode.tekton.dev/on-target-branch: '[refs/tags/*]'
+spec:
+  taskRunTemplate:
+    serviceAccountName: tekton-build
+    podTemplate:
+      hostAliases:
+      - ip: 192.168.1.22
+        hostnames:
+        - git.rossd.net
+  timeouts:
+    pipeline: 2h0m0s
+  params:
+  - name: repo
+    value: ocgo-usage
+  - name: url
+    value: https://git.rossd.net/rosco/ocgo-usage.git
+  - name: tag
+    value: '{{git_tag}}'
+  - name: buildPkg
+    value: .
+  - name: binPrefix
+    value: ocgo-usage
+  - name: runTest
+    value: 'false'
+  pipelineRef:
+    name: release-build

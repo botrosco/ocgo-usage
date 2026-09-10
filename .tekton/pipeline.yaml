@@ -1,0 +1,72 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: release-build
+  labels:
+    app.kubernetes.io/part-of: tekton-migrate
+spec:
+  description: Builds and uploads the 3 release binaries (linux/amd64, windows/amd64, darwin/arm64) for rosco/<repo>
+    releases. Used by commandcode-usage (runTest=true, buildPkg=.), kubegen (buildPkg=./cmd/kubegen) and ocgo-usage
+    (buildPkg=.).
+  params:
+  - name: repo
+    type: string
+  - name: url
+    type: string
+    description: https://git.rossd.net/rosco/<repo>.git
+  - name: tag
+    type: string
+    description: release tag (body.release.tag_name)
+  - name: buildPkg
+    type: string
+    default: .
+  - name: binPrefix
+    type: string
+  - name: runTest
+    type: string
+    default: 'false'
+    description: true|false
+  tasks:
+  - name: checkout
+    taskRef:
+      name: checkout
+    params:
+    - name: url
+      value: $(params.url)
+    - name: revision
+      value: $(params.tag)
+    - name: depth
+      value: '1'
+  - name: go-toolchain
+    taskRef:
+      name: go-toolchain
+    params:
+    - name: version
+      value: '1.26'
+  - name: go-release-build
+    taskRef:
+      name: go-release-build
+    runAfter:
+    - checkout
+    - go-toolchain
+    params:
+    - name: buildPkg
+      value: $(params.buildPkg)
+    - name: binPrefix
+      value: $(params.binPrefix)
+    - name: tag
+      value: $(params.tag)
+    - name: runTest
+      value: $(params.runTest)
+  - name: go-release-upload
+    taskRef:
+      name: go-release-upload
+    runAfter:
+    - go-release-build
+    params:
+    - name: repo
+      value: $(params.repo)
+    - name: tag
+      value: $(params.tag)
+    - name: binDir
+      value: bin
