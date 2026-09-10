@@ -20,13 +20,13 @@ spec:
     pipeline: 2h0m0s
   workspaces:
   - name: source
-    hostPath:
-      path: /var/lib/tekton-build/ocgo-usage/source
-      type: DirectoryOrCreate
+    persistentVolumeClaim:
+      claimName: release-build-ocgo-usage
+    subPath: src
   - name: toolchain
-    hostPath:
-      path: /var/lib/tekton-build/ocgo-usage/toolchain
-      type: DirectoryOrCreate
+    persistentVolumeClaim:
+      claimName: release-build-ocgo-usage
+    subPath: toolchain
   params:
   - name: repo
     value: ocgo-usage
