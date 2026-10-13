@@ -57,9 +57,9 @@ spec:
       value: $(params.runTest)
     - name: runName
       value: $(context.pipelineRun.name)
-  - name: go-release-upload
+  - name: release-upload
     taskRef:
-      name: go-release-upload
+      name: release-upload
     runAfter:
     - go-release-build
     params:
